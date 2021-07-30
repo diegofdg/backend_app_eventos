@@ -27,6 +27,7 @@ const Eventos=db.define('eventos', {
 });
 
 //Crea las relaciones con usuarios
-Eventos.belongsTo(Usuarios,{foreignKey:'id_usuario'});
+Eventos.belongsTo(Usuarios);
+Usuarios.hasMany(Eventos);
 
 module.exports = Eventos;

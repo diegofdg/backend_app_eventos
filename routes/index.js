@@ -12,9 +12,11 @@ router.use(express.urlencoded({ extended: true }))
 
 //Rutas Eventos
 router.get('/eventos',eventosController.getEventos);
+router.post('/eventos',eventosController.createEvento);
 
 //Rutas Fecha Eventos
 router.get('/fechaeventos',fechaEventosController.getFechaEventos);
+router.post('/fechaeventos',fechaEventosController.createFechaEvento);
 
 //Rutas Usuarios
 router.get('/usuarios',usuariosController.getUsuario);

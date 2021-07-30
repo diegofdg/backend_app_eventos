@@ -20,10 +20,10 @@ const FechaEventos=db.define('fechaeventos', {
         type:Sequelize.DECIMAL(14,2),
         allowNull:false,        
     }    
-
 });
 
 //Crea las relaciones con eventos
-FechaEventos.belongsTo(Eventos,{foreignKey:'id_evento'}); //persona_id
+FechaEventos.belongsTo(Eventos);
+Eventos.hasOne(FechaEventos);
 
 module.exports = FechaEventos;
