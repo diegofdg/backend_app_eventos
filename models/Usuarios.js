@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
 
-const Usuarios=db.define('usuarios', {
+const Usuarios = db.define('usuarios', {
     id:{
         type:Sequelize.INTEGER(11),
         primaryKey:true,
@@ -9,15 +9,33 @@ const Usuarios=db.define('usuarios', {
     },
     nombre:{
         type:Sequelize.STRING(40),
-        allowNull:false,       
+        allowNull:false,  
+        validate: {                        
+            is: {
+                args: ["^[a-z]+$",'i'],
+                msg: 'El Nombre no puede estar vacio o contener números'
+            },        
+        }     
     },    
     apellido:{
         type:Sequelize.STRING(40),
-        allowNull:false,        
+        allowNull:false,     
+        validate: {                        
+            is: {
+                args: ["^[a-z]+$",'i'],
+                msg: 'El Apellido no puede estar vacio o contener números'
+            },        
+        }   
     },   
     alias:{
         type:Sequelize.STRING(40),
-        allowNull:false,        
+        allowNull:false,    
+        validate: {                        
+            is: {
+                args: ["^[a-z]+$",'i'],
+                msg: 'El Alias no puede estar vacio o contener números'
+            },        
+        }    
     },  
     clave:{
         type:Sequelize.STRING(60),

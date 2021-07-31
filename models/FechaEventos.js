@@ -1,8 +1,7 @@
 const Sequelize = require('sequelize');
-const Eventos = require('./Eventos');
 const db = require('../config/db');
 
-const FechaEventos=db.define('fechaeventos', {    
+const FechaEventos = db.define('fechaeventos', {    
     id:{
         type:Sequelize.INTEGER(11),
         primaryKey:true,
@@ -21,9 +20,5 @@ const FechaEventos=db.define('fechaeventos', {
         allowNull:false,        
     }    
 });
-
-//Crea las relaciones con eventos
-FechaEventos.belongsTo(Eventos);
-Eventos.hasOne(FechaEventos);
 
 module.exports = FechaEventos;

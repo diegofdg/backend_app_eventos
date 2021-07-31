@@ -12,6 +12,9 @@ router.use(express.urlencoded({ extended: true }))
 
 //Rutas Eventos
 router.get('/eventos',eventosController.getEventos);
+router.get('/eventocompartir',eventosController.compartirEvento);
+router.get('/eventos/:id',eventosController.getEventoById);
+router.get('/eventosdestacados/',eventosController.getEventosDestacados);
 router.post('/eventos',eventosController.createEvento);
 
 //Rutas Fecha Eventos
