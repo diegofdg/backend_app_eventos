@@ -21,7 +21,10 @@ router.post('/eventos',eventosController.createEvento); // ESTE TODAVIA NO USAR
 router.get('/fechaeventos',fechaEventosController.getFechaEventos); // ESTE TODAVIA NO USAR
 router.post('/fechaeventos',fechaEventosController.createFechaEvento); // ESTE TODAVIA NO USAR
 
+//Rutas Login
+router.get('/login',loginController.loginUsuario);
+
 //Rutas Usuarios
-router.get('/login',usuariosController.loginUsuario);
+router.post('/usuario',usuariosController.crearUsuario);
 
 module.exports = router;
