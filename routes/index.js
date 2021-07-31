@@ -6,6 +6,7 @@ const router = express.Router();
 const eventosController = require('../controllers/eventosController');
 const fechaEventosController = require('../controllers/fechaEventosController');
 const usuariosController = require('../controllers/usuariosController');
+const loginController = require('../controllers/loginController');
 
 router.use(express.json())
 router.use(express.urlencoded({ extended: true }))

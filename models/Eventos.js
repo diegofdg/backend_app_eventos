@@ -12,12 +12,12 @@ const Eventos = db.define('eventos', {
     titulo:{
         type:Sequelize.STRING(80),
         allowNull:false, 
-        validate: {                        
+        /* validate: {                        
             is: {
                 args: ["^[a-z]+$",'i'],
                 msg: 'El nombre no puede estar vacio o contener números'
             },        
-        }       
+        }        */
     },    
     descripcion:{
         type:Sequelize.TEXT,
@@ -29,6 +29,14 @@ const Eventos = db.define('eventos', {
     },  
     imagenUrl:{
         type:Sequelize.STRING(100),
+        allowNull:false,        
+    },
+    latitud:{
+        type:Sequelize.DECIMAL(9,6),
+        allowNull:false,        
+    },
+    longitud:{
+        type:Sequelize.DECIMAL(9,6),
         allowNull:false,        
     }
 });

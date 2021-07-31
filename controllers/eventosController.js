@@ -1,6 +1,8 @@
 //Importamos las dependencias
-const Eventos = require("../models/Eventos");
-const FechaEventos = require("../models/FechaEventos");
+const jwt = require('jsonwebtoken');
+const Usuarios = require('../models/Usuarios')
+const Eventos = require('../models/Eventos');
+const FechaEventos = require('../models/FechaEventos');
 
 /***************** VISITANTE ******************/
 
@@ -134,17 +136,41 @@ exports.getEventosDestacados = async (req, res) => {
 
 /***************** USUARIO REGISTRADO ******************/
 
-// Crear un evento  ************ NO ESTA TERMINADO
+// Obtener el token del encabezado
+const getToken = req => {
+    const authorization = req.get('Authorization');
+    if(authorization && authorization.toLowerCase().startsWith('bearer ')){
+        return authorization.substring(7);
+    }
+    return null;
+}
+
+// Crear un evento
 exports.createEvento = async (req, res) => {
-    const { titulo, descripcion, destacado, imagenUrl, usuarioId } = req.body;
+    const { titulo, descripcion, destacado, imagenUrl, latitud, longitud } = req.body;
+    const token = getToken(req);
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+    if(!token || !decodedToken.id){
+        return res.status(401).json({
+            Error: "No se encuentra el token o es inválido",
+        });
+    }
     try {
-        const result = await Eventos.create({
+        const usuario = await Usuarios.findOne({
+            where: {
+                id: decodedToken.id
+            }
+        });
+        const nuevoEvento = {
             titulo,
             descripcion,
             destacado,
             imagenUrl,
-            usuarioId,
-        });
+            latitud,
+            longitud,
+            usuarioId: usuario.id
+        }
+        const result = await Eventos.create(nuevoEvento);
         if (result != null) {
             return res.status(200).json(result.dataValues);
         } else {
@@ -153,6 +179,6 @@ exports.createEvento = async (req, res) => {
             });
         }
     } catch (error) {
-        console.log(error);
+        return res.status(404).json(error);
     }
 };

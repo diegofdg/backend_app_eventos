@@ -1,5 +1,6 @@
 //Importamos las dependencias
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const Usuarios = require('../models/Usuarios');
 
 // Login de usuario
@@ -18,8 +19,16 @@ exports.loginUsuario = async(req,res) => {
                     Error: 'Usuario o Password incorrectos'
                 });
             } else {
+                const usuarioToken = {
+                    usuario,
+                    id: result.id
+                }                
+                const token = jwt.sign(usuarioToken, process.env.SECRET);  
+                console.log(token)              
+                const decodedToken = jwt.verify(token, process.env.SECRET)
+                console.log(decodedToken)
                 return res.status(200).json({
-                    Mensaje: `El usuario ${usuario} ha hecho un login correcto.`
+                    token, usuario
                 });
             }       
         } else {            
