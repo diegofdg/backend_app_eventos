@@ -27,13 +27,13 @@ const Usuarios = db.define('usuarios', {
             },        
         }   
     },   
-    alias:{
+    usuario:{
         type:Sequelize.STRING(40),
         allowNull:false,    
         validate: {                        
             is: {
                 args: ["^[a-z]+$",'i'],
-                msg: 'El Alias no puede estar vacio o contener números'
+                msg: 'El Usuario no puede estar vacio o contener números'
             },        
         }    
     },  

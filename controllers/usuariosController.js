@@ -2,15 +2,26 @@
 const Usuarios = require('../models/Usuarios');
 const Eventos = require('../models/Eventos');
 
-// Listar todos los usuarios
-exports.getUsuario = async(req,res,next) => {
+// Login de usuario
+exports.loginUsuario = async(req,res,next) => {
     try{
-        const result = await Usuarios.findAll({}); 
+        const { usuario, clave } = body;
+        const result = await Usuarios.findOne({
+            usuario
+        });         
         if(result.length !== 0){
-            return res.status(200).json(result);
+            if(clave === result.clave){
+                return res.status(200).json({
+                    Mensaje: `El usuario ${usuario} ha hecho un login correcto.`
+                });
+            } else {
+                return res.status(401).json({                
+                    Error: 'Usuario o Password incorrectos'
+                });        
+            }            
         } else {            
             return res.status(204).json({                
-                Error: 'No existen usuarios registrados'
+                Error: 'No existe el usuario'
             });        
         }
     }
