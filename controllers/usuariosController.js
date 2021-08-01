@@ -18,6 +18,6 @@ exports.crearUsuario = async(req,res,next) => {
             nuevoUsuario
         });
     } catch (error) {
-    
+        return res.status(404).json(error);    
     }
 }

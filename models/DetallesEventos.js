@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
 
-const FechaEventos = db.define('fechaeventos', {    
+const DetallesEventos = db.define('detalleseventos', {
     id:{
         type:Sequelize.INTEGER(11),
         primaryKey:true,
@@ -9,16 +9,16 @@ const FechaEventos = db.define('fechaeventos', {
     },
     fecha:{
         type:Sequelize.DATEONLY,
-        allowNull:false,        
-    },    
+        allowNull:false,
+    },
     hora:{
         type:Sequelize.TIME,
-        allowNull:false,        
-    },   
+        allowNull:false,    
+    },
     precio:{
         type:Sequelize.DECIMAL(14,2),
-        allowNull:false,        
-    }    
+        allowNull:false,
+    }
 });
 
-module.exports = FechaEventos;
+module.exports = DetallesEventos;

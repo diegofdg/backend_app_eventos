@@ -23,16 +23,13 @@ exports.loginUsuario = async(req,res) => {
                     usuario,
                     id: result.id
                 }                
-                const token = jwt.sign(usuarioToken, process.env.SECRET);  
-                console.log(token)              
-                const decodedToken = jwt.verify(token, process.env.SECRET)
-                console.log(decodedToken)
+                const token = jwt.sign(usuarioToken, process.env.SECRET);                                  
                 return res.status(200).json({
                     token, usuario
                 });
             }       
         } else {            
-            return res.status(204).json({                
+            return res.status(404).json({                
                 Error: 'No existe el usuario'
             });        
         }

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
 const Usuarios = require('./Usuarios');
-const FechaEventos = require('./FechaEventos');
+const DetallesEventos = require('./DetallesEventos');
 
 const Eventos = db.define('eventos', {
     id:{
@@ -42,8 +42,8 @@ const Eventos = db.define('eventos', {
 });
 
 //Crea las relaciones con eventos
-FechaEventos.belongsTo(Eventos);
-Eventos.hasOne(FechaEventos);
+DetallesEventos.belongsTo(Eventos);
+Eventos.hasOne(DetallesEventos);
 
 //Crea las relaciones con usuarios
 Eventos.belongsTo(Usuarios);
