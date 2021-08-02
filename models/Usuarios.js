@@ -10,9 +10,9 @@ const Usuarios = db.define('usuarios', {
     nombre:{
         type:Sequelize.STRING(40),
         allowNull:false,  
-        validate: {                        
+        validate: {    
             is: {
-                args: ["^[a-z]+$",'i'],
+                args: /^[a-z\s]+$/i,
                 msg: 'El Nombre no puede estar vacio o contener números'
             },        
         }     
@@ -22,7 +22,7 @@ const Usuarios = db.define('usuarios', {
         allowNull:false,     
         validate: {                        
             is: {
-                args: ["^[a-z]+$",'i'],
+                args: /^[a-z\s]+$/i,
                 msg: 'El Apellido no puede estar vacio o contener números'
             },        
         }   
@@ -32,8 +32,8 @@ const Usuarios = db.define('usuarios', {
         allowNull:false,    
         validate: {                        
             is: {
-                args: ["^[a-z]+$",'i'],
-                msg: 'El Usuario no puede estar vacio o contener números'
+                args: /^[0-9a-z]+$/i,
+                msg: 'El Usuario no puede estar vacio'
             },        
         }    
     },  

@@ -20,24 +20,23 @@ exports.getFechaEventos = async(req,res,next) => {
 }
 
 // Crear una fecha evento
-exports.createFechaEvento = async(req,res,next) => {
-    const { fecha, hora, precio, id_evento } = req.body;
+exports.createFechaEvento = async(detalle) => {
+    const { descripcion, latitud, longitud, precio, evento_id } = detalle;
     try{                        
         const result = await DetallesEventos.create({
-            fecha,
-            hora,
+            descripcion,
+            latitud,
+            longitud,
             precio,            
-            id_evento
+            evento_id
         }); 
         if(result != null){
-            return res.status(200).json(result.dataValues);
+            return result.dataValues;
         } else {
-            return res.status(404).json({                
-                Error: 'No se pudo realizar el registro'
-            });        
+            return null;
         }
     }
     catch(error){
-        return res.status(404).json(error);
+        return null;
     }
 }

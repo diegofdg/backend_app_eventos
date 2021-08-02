@@ -12,17 +12,13 @@ const Eventos = db.define('eventos', {
     titulo:{
         type:Sequelize.STRING(80),
         allowNull:false, 
-        /* validate: {                        
+        validate: {                        
             is: {
-                args: ["^[a-z]+$",'i'],
-                msg: 'El nombre no puede estar vacio o contener números'
+                args: /^[a-z\s]+$/i,
+                msg: 'El título no puede estar vacio o contener números'
             },        
-        }        */
-    },    
-    descripcion:{
-        type:Sequelize.TEXT,
-        allowNull:false,        
-    },   
+        }       
+    },           
     destacado:{
         type:Sequelize.BOOLEAN,
         allowNull:false,        
@@ -31,22 +27,22 @@ const Eventos = db.define('eventos', {
         type:Sequelize.STRING(100),
         allowNull:false,        
     },
-    latitud:{
-        type:Sequelize.DECIMAL(9,6),
-        allowNull:false,        
+    fecha:{
+        type:Sequelize.DATEONLY,
+        allowNull:false,
     },
-    longitud:{
-        type:Sequelize.DECIMAL(9,6),
-        allowNull:false,        
-    }
+    hora:{
+        type:Sequelize.TIME,
+        allowNull:false,    
+    }    
 });
 
 //Crea las relaciones con eventos
-DetallesEventos.belongsTo(Eventos);
-Eventos.hasOne(DetallesEventos);
+DetallesEventos.belongsTo(Eventos,{foreignKey:'evento_id'});
+Eventos.hasOne(DetallesEventos,{foreignKey:'evento_id'});
 
 //Crea las relaciones con usuarios
-Eventos.belongsTo(Usuarios);
+Eventos.belongsTo(Usuarios,{foreignKey:'usuario_id'});
 Usuarios.hasMany(Eventos);
 
 module.exports = Eventos;

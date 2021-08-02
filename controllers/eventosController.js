@@ -9,18 +9,10 @@ const DetallesEventos = require('../models/DetallesEventos');
 // Listar todos los eventos ordenados por fecha
 exports.getEventos = async (req, res) => {
     try {
-        const result = await Eventos.findAll({
-            attributes: ["titulo", "descripcion", "destacado", "imagenUrl"],
-            include: [
-                {
-                    attributes: ["fecha", "hora", "precio"],
-                    model: DetallesEventos,
-                    as: "detallesevento",
-                },
-            ],
+        const result = await Eventos.findAll({            
             order: [
-                ["detallesevento", "fecha", "desc"],
-                ["detallesevento", "hora", "desc"],
+                ["fecha", "desc"],
+                ["hora", "desc"],
             ]
         });
 
@@ -41,28 +33,23 @@ exports.compartirEvento = async (req, res) => {
 
     try {
         const { id } = req.body;
+        console.log(id)
         const result = await Eventos.findAll({
             where: {
                 id,
             },
-            attributes: ["titulo", "imagenUrl"],
-            include: [
-                {
-                    attributes: ["fecha"],
-                    model: DetallesEventos,
-                    as: "detallesevento",
-                },
-            ],
-        });        
-        if (result.length !== 0) {
+            attributes: ["titulo", "imagenUrl","fecha", "hora"],            
+        });          
+        if (result.length !== 0) {            
             const resultObject = result.map(ro =>{
                 return Object.assign({},{
                     titulo: ro.titulo,
                     imagenUrl: ro.imagenUrl,
-                    fecha: result[0].detallesevento.fecha
+                    fecha: ro.fecha,
+                    hora: ro.hora
                 });                
-            });                        
-            const respuesta = `Iré al ${resultObject[0].titulo} @ ${resultObject[0].fecha} ${resultObject[0].imagenUrl}`            
+            });               
+            const respuesta = `Iré al ${resultObject[0].titulo} el ${resultObject[0].fecha} a las ${resultObject[0].hora} @ link -> ${resultObject[0].imagenUrl}`
             return res.status(200).json(respuesta);
         } else {            
             return res.status(404).json({
@@ -82,15 +69,15 @@ exports.getEventoById = async (req, res) => {
             where: {
                 id,
             },
-            attributes: ["titulo", "descripcion", "destacado", "imagenUrl"],
+            attributes: ["titulo", "destacado", "imagenUrl", "fecha", "hora"],
             include: [
                 {
-                    attributes: ["fecha", "hora", "precio"],
+                    attributes: ["descripcion", "latitud", "longitud", "precio"],
                     model: DetallesEventos,
                     as: "detallesevento",
                 },
             ],
-        });
+        });        
         if (result.length !== 0) {
             return res.status(200).json(result);
         } else {
@@ -110,17 +97,17 @@ exports.getEventosDestacados = async (req, res) => {
             where: {
                 destacado: 1,
             },
-            attributes: ["titulo", "descripcion", "imagenUrl"],
+            attributes: ["titulo", "imagenUrl","fecha", "hora"],
             include: [
                 {
-                    attributes: ["fecha", "hora", "precio"],
+                    attributes: ["descripcion", "latitud", "longitud", "precio"],
                     model: DetallesEventos,
                     as: "detallesevento",
                 },
             ],
             order: [
-                ["detallesevento", "fecha", "desc"],
-                ["detallesevento", "hora", "desc"],
+                ["fecha", "desc"],
+                ["hora", "desc"],
             ],
         });
         if (result.length !== 0) {
@@ -148,7 +135,7 @@ const getToken = req => {
 
 // Crear un evento
 exports.createEvento = async (req, res) => {
-    const { titulo, descripcion, destacado, imagenUrl, latitud, longitud, fecha, hora, precio } = req.body;
+    const { titulo, destacado, imagenUrl, fecha, hora, descripcion, latitud, longitud, precio } = req.body;
     const token = getToken(req);
     const decodedToken = jwt.verify(token, process.env.SECRET);
     if(!token || !decodedToken.id){
@@ -163,33 +150,32 @@ exports.createEvento = async (req, res) => {
             }
         });
         const nuevoEvento = {
-            titulo,
-            descripcion,
+            titulo,            
             destacado,
             imagenUrl,
-            latitud,
-            longitud,
-            usuarioId: usuario.id
+            fecha,
+            hora,
+            usuario_id: usuario.id
         }
         const eventoCreado = await Eventos.create(nuevoEvento);
         if (eventoCreado != null) {
-            const eventoId = eventoCreado.id;
-            const nuevaFecha = {
-                fecha,
-                hora,
+            const evento_id = eventoCreado.id;
+            const nuevoDetalle = {
+                descripcion,
+                latitud,
+                longitud,
                 precio,
-                eventoId
-            }
-            const fechaCreada = await DetallesEventos.create(nuevaFecha);
-            if(fechaCreada != null) {
-                const result = { ...eventoCreado.dataValues,...fechaCreada.dataValues }
+                evento_id
+            }            
+            const detalleCreado = await DetallesEventos.create(nuevoDetalle);
+            if(detalleCreado != null) {
+                const result = { ...eventoCreado.dataValues,...detalleCreado.dataValues }
                 return res.status(200).send(result);
             } else {
                 return res.status(404).json({
                     Error: "No se pudo realizar el registro",
                 });
-            }
-            
+            }            
         } else {
             return res.status(404).json({
                 Error: "No se pudo realizar el registro",
@@ -228,19 +214,19 @@ exports.getEventosUsuario = async (req, res) => {
     try {        
         const result = await Eventos.findAll({
             where: {
-                usuarioId: decodedToken.id,
+                usuario_id: decodedToken.id,
             },
-            attributes: ["titulo", "descripcion", "imagenUrl"],
+            attributes: ["titulo", "imagenUrl", "fecha", "hora"],
             include: [
                 {
-                    attributes: ["fecha", "hora", "precio"],
+                    attributes: ["descripcion","latitud", "longitud", "precio"],
                     model: DetallesEventos,
                     as: "detallesevento",
                 },
             ],
             order: [
-                ["detallesevento", "fecha", "desc"],
-                ["detallesevento", "hora", "desc"],
+                ["fecha", "desc"],
+                ["hora", "desc"],
             ],
             limit: 3,
             offset: pagina

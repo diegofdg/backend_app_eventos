@@ -19,8 +19,8 @@ router.get('/eventos/:id',eventosController.getEventoById);
 router.get('/eventosdestacados/',eventosController.getEventosDestacados);
 
 //Rutas Fecha Eventos
-router.get('/detalleseventos',detallesEventosController.getFechaEventos); // ESTE TODAVIA NO USAR
-router.post('/detalleseventos',detallesEventosController.createFechaEvento); // ESTE TODAVIA NO USAR
+//router.get('/detalleseventos',detallesEventosController.getFechaEventos); // ESTE TODAVIA NO USAR
+//router.post('/detalleseventos',detallesEventosController.createFechaEvento); // ESTE TODAVIA NO USAR
 
 //Rutas Login
 router.get('/login',loginController.loginUsuario);
