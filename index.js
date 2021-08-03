@@ -1,13 +1,11 @@
 const express = require('express');
-
 const app = express();
 
-//Habilitar Cors
 // Importamos la dependencia dotenv para configurar las variables de entrono
 require('dotenv').config();
+
 const port=process.env.PORT|| 8888;
 const host=process.env.HOST||'0.0.0.0';
-
 const db = require('./config/db');
 
 db.authenticate()

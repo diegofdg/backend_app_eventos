@@ -2,7 +2,7 @@
 const DetallesEventos = require('../models/DetallesEventos');
 
 // Listar todos las fechas eventos ordenados del mas nuevo al mas viejo
-exports.getFechaEventos = async(req,res,next) => {
+exports.getDetalleEventos = async(req,res,next) => {
     try{
         
         const result = await DetallesEventos.findAll({});
@@ -20,23 +20,24 @@ exports.getFechaEventos = async(req,res,next) => {
 }
 
 // Crear una fecha evento
-exports.createFechaEvento = async(detalle) => {
-    const { descripcion, latitud, longitud, precio, evento_id } = detalle;
+exports.createDetalleEvento = async(req,res,next) => {
+    const { fecha, hora, precio, id_evento } = req.body;
     try{                        
         const result = await DetallesEventos.create({
-            descripcion,
-            latitud,
-            longitud,
+            fecha,
+            hora,
             precio,            
-            evento_id
+            id_evento
         }); 
         if(result != null){
-            return result.dataValues;
+            return res.status(200).json(result.dataValues);
         } else {
-            return null;
+            return res.status(404).json({                
+                Error: 'No se pudo realizar el registro'
+            });        
         }
     }
     catch(error){
-        return null;
+        return res.status(404).json(error);
     }
 }

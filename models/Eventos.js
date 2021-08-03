@@ -13,36 +13,54 @@ const Eventos = db.define('eventos', {
         type:Sequelize.STRING(80),
         allowNull:false, 
         validate: {                        
-            is: {
-                args: /^[a-z\s]+$/i,
-                msg: 'El título no puede estar vacio o contener números'
-            },        
-        }       
-    },           
+            notEmpty:{
+                msg: 'El Titulo del Evento no puede estar Vacio.'
+            },
+            isAlphanumeric: {
+                msg: 'El Titulo del Evento solo puede contener letras y numeros.'
+            },
+        }
+    },    
+    descripcion:{
+        type:Sequelize.TEXT,
+        allowNull:false,
+        validate:{
+            notEmpty:{
+                msg: 'La Descripcion del Evento no puede estar Vacia.'
+            },
+        }
+    },   
     destacado:{
         type:Sequelize.BOOLEAN,
+        defaultValue:false,
         allowNull:false,        
-    },  
+    },
     imagenUrl:{
         type:Sequelize.STRING(100),
-        allowNull:false,        
-    },
-    fecha:{
-        type:Sequelize.DATEONLY,
         allowNull:false,
+        validate: {                        
+            is: {
+                isUrl: true,
+            },
+        }          
     },
-    hora:{
-        type:Sequelize.TIME,
-        allowNull:false,    
-    }    
+    localidad:{
+        type:Sequelize.STRING(40),
+        allowNull:false,
+        validate:{
+            notEmpty:{
+                msg: 'La Localidad del Evento no puede estar Vacia.'
+            },
+        }
+    },
 });
 
 //Crea las relaciones con eventos
-DetallesEventos.belongsTo(Eventos,{foreignKey:'evento_id'});
-Eventos.hasOne(DetallesEventos,{foreignKey:'evento_id'});
+DetallesEventos.belongsTo(Eventos);
+Eventos.hasOne(DetallesEventos);
 
 //Crea las relaciones con usuarios
-Eventos.belongsTo(Usuarios,{foreignKey:'usuario_id'});
+Eventos.belongsTo(Usuarios);
 Usuarios.hasMany(Eventos);
 
 module.exports = Eventos;

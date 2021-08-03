@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
-const Eventos = require('./Eventos');
 
 const DetallesEventos = db.define('detalleseventos', {
     id:{
@@ -8,21 +7,32 @@ const DetallesEventos = db.define('detalleseventos', {
         primaryKey:true,
         autoIncrement:true
     },
-    descripcion:{
-        type:Sequelize.TEXT,
-        allowNull:false,        
-    },    
-    latitud:{
-        type:Sequelize.DECIMAL(9,6),
-        allowNull:false,        
+    fecha:{
+        type:Sequelize.DATEONLY,
+        allowNull:false,
+        validate:{
+            notEmpty:{
+                msg: 'La Fecha del Detalle Evento no puede estar Vacia.'
+            },
+        }
     },
-    longitud:{
-        type:Sequelize.DECIMAL(9,6),
-        allowNull:false,        
+    hora:{
+        type:Sequelize.TIME,
+        allowNull:false,
+        validate:{
+            notEmpty:{
+                msg: 'La Hora del Detalle Evento no puede estar Vacia.'
+            },
+        }    
     },
     precio:{
         type:Sequelize.DECIMAL(14,2),
         allowNull:false,
+        validate:{
+            notEmpty:{
+                msg: 'El Precio del Evento no puede estar Vacia.'
+            },
+        }
     }
 });
 

@@ -1,20 +1,40 @@
 //Importamos las dependencias
-const jwt = require('jsonwebtoken');
+const {Op} = require('sequelize');
 const Usuarios = require('../models/Usuarios')
 const Eventos = require('../models/Eventos');
 const DetallesEventos = require('../models/DetallesEventos');
+const loginController= require('../controllers/loginController');
 
-/***************** VISITANTE ******************/
+/***************** SIN AUTENTIFICACION ******************/
 
 // Listar todos los eventos ordenados por fecha
 exports.getEventos = async (req, res) => {
+    const hoy = new Date();
+        dia = hoy.getDate();
+        mes = hoy.getMonth()+1;
+        anio= hoy.getFullYear();
+        fecha_actual = String(anio+"-"+mes+"-"+dia);
+        fecha_actual = new Date(fecha_actual);
+        //console.log(fecha_actual);
+
     try {
-        const result = await Eventos.findAll({            
+        const result = await Eventos.findAll({
+            
+            attributes: ["titulo", "descripcion","localidad", "destacado", "imagenUrl"],
+            include: [
+                {
+                    attributes: ["fecha", "hora", "precio"],
+                    model: DetallesEventos,
+                    where: { fecha: {[Op.gte]:fecha_actual} },
+                    as: "detallesevento",
+                }, 
+            ],
             order: [
-                ["fecha", "desc"],
-                ["hora", "desc"],
+                ["detallesevento", "fecha", "desc"],
+                ["detallesevento", "hora", "desc"],
             ]
         });
+        
 
         if (result.length !== 0) {
             return res.status(200).json(result);
@@ -33,23 +53,28 @@ exports.compartirEvento = async (req, res) => {
 
     try {
         const { id } = req.body;
-        console.log(id)
         const result = await Eventos.findAll({
             where: {
                 id,
             },
-            attributes: ["titulo", "imagenUrl","fecha", "hora"],            
-        });          
-        if (result.length !== 0) {            
+            attributes: ["titulo", "imagenUrl"],
+            include: [
+                {
+                    attributes: ["fecha"],
+                    model: DetallesEventos,
+                    as: "detallesevento",
+                },
+            ],
+        });        
+        if (result.length !== 0) {
             const resultObject = result.map(ro =>{
                 return Object.assign({},{
                     titulo: ro.titulo,
                     imagenUrl: ro.imagenUrl,
-                    fecha: ro.fecha,
-                    hora: ro.hora
+                    fecha: result[0].detallesevento.fecha
                 });                
-            });               
-            const respuesta = `Iré al ${resultObject[0].titulo} el ${resultObject[0].fecha} a las ${resultObject[0].hora} @ link -> ${resultObject[0].imagenUrl}`
+            });                        
+            const respuesta = `Iré al ${resultObject[0].titulo} @ ${resultObject[0].fecha} ${resultObject[0].imagenUrl}`            
             return res.status(200).json(respuesta);
         } else {            
             return res.status(404).json({
@@ -65,19 +90,21 @@ exports.compartirEvento = async (req, res) => {
 exports.getEventoById = async (req, res) => {
     try {
         const { id } = req.params;
+        
         const result = await Eventos.findAll({
             where: {
                 id,
             },
-            attributes: ["titulo", "destacado", "imagenUrl", "fecha", "hora"],
+            attributes: ["titulo", "descripcion", "localidad", "destacado", "imagenUrl"],
             include: [
                 {
-                    attributes: ["descripcion", "latitud", "longitud", "precio"],
+                    attributes: ["fecha", "hora", "precio"],
                     model: DetallesEventos,
                     as: "detallesevento",
                 },
             ],
-        });        
+        });
+        
         if (result.length !== 0) {
             return res.status(200).json(result);
         } else {
@@ -97,17 +124,18 @@ exports.getEventosDestacados = async (req, res) => {
             where: {
                 destacado: 1,
             },
-            attributes: ["titulo", "imagenUrl","fecha", "hora"],
+            attributes: ["titulo", "descripcion", "imagenUrl"],
             include: [
                 {
-                    attributes: ["descripcion", "latitud", "longitud", "precio"],
+                    attributes: ["fecha", "hora", "precio"],
                     model: DetallesEventos,
+                    where: { fecha: {[Op.gte]:fecha_actual} },
                     as: "detallesevento",
                 },
             ],
             order: [
-                ["fecha", "desc"],
-                ["hora", "desc"],
+                ["detallesevento", "fecha", "desc"],
+                ["detallesevento", "hora", "desc"],
             ],
         });
         if (result.length !== 0) {
@@ -122,64 +150,52 @@ exports.getEventosDestacados = async (req, res) => {
     }
 };
 
-/***************** USUARIO REGISTRADO ******************/
+/***************** AUTENTICADO ******************/
 
-// Obtener el token del encabezado
-const getToken = req => {
-    const authorization = req.get('Authorization');
-    if(authorization && authorization.toLowerCase().startsWith('bearer ')){
-        return authorization.substring(7);
-    }
-    return null;
-}
-
-// Crear un evento
-exports.createEvento = async (req, res) => {
-    const { titulo, destacado, imagenUrl, fecha, hora, descripcion, latitud, longitud, precio } = req.body;
-    const token = getToken(req);
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    if(!token || !decodedToken.id){
-        return res.status(401).json({
-            Error: "No se encuentra el token o es inválido",
-        });
-    }
+// Crear un evento y sus detalles 0 o +
+exports.crearEvento = async (req, res) => {
+    const { titulo, descripcion, destacado, imagenUrl, localidad} = req.body;    
     try {
+        const token = loginController.getToken(req) || null;
+        const decodedToken = loginController.decodificaSecreto(token);
+    
+        if(!loginController.validaToken(token)){
+            return res.status(401).json({ Error: "No se encuentra el token o es inválido" });
+        }
+
         const usuario = await Usuarios.findOne({
             where: {
                 id: decodedToken.id
             }
         });
         const nuevoEvento = {
-            titulo,            
+            titulo,
+            descripcion,
             destacado,
             imagenUrl,
-            fecha,
-            hora,
-            usuario_id: usuario.id
+            localidad,
+            usuarioId: usuario.id
         }
         const eventoCreado = await Eventos.create(nuevoEvento);
         if (eventoCreado != null) {
-            const evento_id = eventoCreado.id;
-            const nuevoDetalle = {
-                descripcion,
-                latitud,
-                longitud,
-                precio,
-                evento_id
-            }            
-            const detalleCreado = await DetallesEventos.create(nuevoDetalle);
-            if(detalleCreado != null) {
-                const result = { ...eventoCreado.dataValues,...detalleCreado.dataValues }
+            const eventoId = eventoCreado.id;
+            
+            arreglo=[]
+            req.body.detalles.forEach(async (det)=> {
+                const {fecha,hora,precio}=det;
+                const nuevaFecha={ fecha,hora,precio,eventoId }
+                await DetallesEventos.create(nuevaFecha).then(arreglo.push(nuevaFecha));
+            });
+
+            if(arreglo != null) {
+                const result = { ...eventoCreado.dataValues,detalle: {arreglo} } 
                 return res.status(200).send(result);
             } else {
-                return res.status(404).json({
-                    Error: "No se pudo realizar el registro",
-                });
-            }            
+                return res.status(404).json({ Error: "No se pudo realizar el registro" });
+            }
+            
         } else {
-            return res.status(404).json({
-                Error: "No se pudo realizar el registro",
-            });
+            return res.status(404).json({ Error: "No se pudo realizar el registro" });
         }
     } catch (error) {
         return res.status(404).json(error);
@@ -188,13 +204,13 @@ exports.createEvento = async (req, res) => {
 
 // Listar eventos del usuario paginados
 exports.getEventosUsuario = async (req, res) => {
-    const token = getToken(req);
-    const decodedToken = jwt.verify(token, process.env.SECRET);
-    if(!token || !decodedToken.id){
-        return res.status(401).json({
-            Error: "No se encuentra el token o es inválido",
-        });
-    }    
+    //const token = getToken(req);
+    const token = loginController.getToken(req) || null;
+    const decodedToken = loginController.decodificaSecreto(token);
+    
+    if(!loginController.validaToken(token)){
+        return res.status(401).json({ Error: "No se encuentra el token o es inválido" });
+    }
 
     let pagina = req.params.page;
     const registros = 3;
@@ -214,19 +230,19 @@ exports.getEventosUsuario = async (req, res) => {
     try {        
         const result = await Eventos.findAll({
             where: {
-                usuario_id: decodedToken.id,
+                usuarioId: decodedToken.id,
             },
-            attributes: ["titulo", "imagenUrl", "fecha", "hora"],
+            attributes: ["titulo", "descripcion", "imagenUrl"],
             include: [
                 {
-                    attributes: ["descripcion","latitud", "longitud", "precio"],
+                    attributes: ["fecha", "hora", "precio"],
                     model: DetallesEventos,
                     as: "detallesevento",
                 },
             ],
             order: [
-                ["fecha", "desc"],
-                ["hora", "desc"],
+                ["detallesevento", "fecha", "desc"],
+                ["detallesevento", "hora", "desc"],
             ],
             limit: 3,
             offset: pagina

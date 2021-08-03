@@ -4,9 +4,12 @@ const jwt = require('jsonwebtoken');
 const Usuarios = require('../models/Usuarios');
 
 // Login de usuario
-exports.loginUsuario = async(req,res) => {
+exports.loginTokenUsuario = async(req,res) => {
     try{
         const { usuario, clave } = req.body;
+
+        if(!usuario || !clave) return res.status(404).json({ Error: 'El Nombre de Usuario y Password es requerido'});
+
         const result = await Usuarios.findOne({
             where: {
                 usuario
@@ -15,9 +18,7 @@ exports.loginUsuario = async(req,res) => {
         if(result.length !== 0){
             const claveCorrecta = await bcrypt.compare(clave, result.clave);
             if(!(result && claveCorrecta)){
-                return res.status(401).json({                
-                    Error: 'Usuario o Password incorrectos'
-                });
+                return res.status(401).json({ Error: 'Usuario o Password incorrectos' });
             } else {
                 const usuarioToken = {
                     usuario,
@@ -29,12 +30,32 @@ exports.loginUsuario = async(req,res) => {
                 });
             }       
         } else {            
-            return res.status(404).json({                
-                Error: 'No existe el usuario'
-            });        
+            return res.status(404).json({ Error: 'No existe el usuario' });        
         }
     }
     catch(error){        
         return res.status(404).json(error);
     }
 }
+
+// Obtener el token del encabezado
+exports.getToken = req => {
+    const authorization = req.get('Authorization');
+    if(authorization && authorization.toLowerCase().startsWith('bearer ')){
+        return authorization.substring(7);
+    }
+    return null;
+}
+
+//valida token
+exports.validaToken=async(token)=>{
+    const decodedToken = jwt.verify(token, process.env.SECRET) || null;
+    
+    if(!token || !decodedToken.id){
+        return false;
+    }
+    
+    return true;
+};
+
+exports.decodificaSecreto=(token)=> jwt.verify(token, process.env.SECRET) || null;
