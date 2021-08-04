@@ -37,7 +37,7 @@ exports.crearUsuario = async(req,res) => {
             clave:passwordHash
         });
 
-        return res.status(200).json({
+        return res.status(201).json({
             nuevoUsuario
         });
     } catch (error) {

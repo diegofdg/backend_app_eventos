@@ -34,6 +34,8 @@ exports.getEventos = async (req, res) => {
                 ["detallesevento", "hora", "desc"],
             ]
         });
+
+        
         
 
         if (result.length !== 0) {
@@ -118,7 +120,14 @@ exports.getEventoById = async (req, res) => {
 };
 
 // Listar eventos destacados
-exports.getEventosDestacados = async (req, res) => {
+exports.getEventosDestacados = async (req, res) => {  
+    const hoy = new Date();
+        dia = hoy.getDate();
+        mes = hoy.getMonth()+1;
+        anio= hoy.getFullYear();
+        fecha_actual = String(anio+"-"+mes+"-"+dia);
+        fecha_actual = new Date(fecha_actual);       
+        
     try {        
         const result = await Eventos.findAll({
             where: {
@@ -137,7 +146,7 @@ exports.getEventosDestacados = async (req, res) => {
                 ["detallesevento", "fecha", "desc"],
                 ["detallesevento", "hora", "desc"],
             ],
-        });
+        });        
         if (result.length !== 0) {
             return res.status(200).json(result);
         } else {
@@ -252,7 +261,7 @@ exports.getEventosUsuario = async (req, res) => {
             return res.status(200).json(result);
         } else {
             return res.status(404).json({
-                Error: "No existen eventos destacados.",
+                Error: "No existen eventos registrados.",
             });
         }
     } catch (error) {        
