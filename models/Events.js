@@ -1,41 +1,41 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
-const Usuarios = require('./Usuarios');
-const DetallesEventos = require('./DetallesEventos');
+const Users = require('./Users');
+const DetailsEvent = require('./DetailsEvent');
 
-const Eventos = db.define('eventos', {
+const Events = db.define('events', {
     id:{
         type:Sequelize.INTEGER(11),
         primaryKey:true,
         autoIncrement:true
     },
-    titulo:{
+    title:{
         type:Sequelize.STRING(80),
         allowNull:false, 
         validate: {                        
             notEmpty:{
-                msg: 'El Titulo del Evento no puede estar Vacio.'
+                msg: 'title cannot be empty.'
             },
             isAlphanumeric: {
-                msg: 'El Titulo del Evento solo puede contener letras y numeros.'
+                msg: 'title contains invalid characters (letters and numbers only!)'
             },
         }
     },    
-    descripcion:{
+    description:{
         type:Sequelize.TEXT,
         allowNull:false,
         validate:{
             notEmpty:{
-                msg: 'La Descripcion del Evento no puede estar Vacia.'
+                msg: 'description cannot be empty.'
             },
         }
     },   
-    destacado:{
+    starred:{
         type:Sequelize.BOOLEAN,
         defaultValue:false,
         allowNull:false,        
     },
-    imagenUrl:{
+    image_url:{
         type:Sequelize.STRING(100),
         allowNull:false,
         validate: {                        
@@ -44,23 +44,21 @@ const Eventos = db.define('eventos', {
             },
         }          
     },
-    localidad:{
+    location:{
         type:Sequelize.STRING(40),
         allowNull:false,
         validate:{
             notEmpty:{
-                msg: 'La Localidad del Evento no puede estar Vacia.'
+                msg: 'location cannot be empty.'
             },
         }
     },
 });
 
-//Crea las relaciones con eventos
-DetallesEventos.belongsTo(Eventos);
-Eventos.hasOne(DetallesEventos);
+DetailsEvent.belongsTo(Events);
+Events.hasOne(DetailsEvent);
 
-//Crea las relaciones con usuarios
-Eventos.belongsTo(Usuarios);
-Usuarios.hasMany(Eventos);
+Events.belongsTo(Users);
+Users.hasMany(Events);
 
-module.exports = Eventos;
+module.exports = Events;

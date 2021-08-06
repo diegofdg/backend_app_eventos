@@ -1,36 +1,43 @@
-//Importamos las dependencias
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Usuarios = require('../models/Usuarios');
+const Users = require('../models/Users');
 
-// Login de usuario
-exports.loginTokenUsuario = async(req,res) => {
+exports.loginTokenUser = async(req,res) => {
     try{
-        const { usuario, clave } = req.body;
+        const { user, password } = req.body;
 
-        if(!usuario || !clave) return res.status(404).json({ Error: 'El Nombre de Usuario y Password es requerido'});
+        if( !user || !password ){
+            return res.status(404).json({ 
+                Error: 'user and password are required'
+            });
+        }
 
-        const result = await Usuarios.findOne({
+        const result = await Users.findOne({
             where: {
-                usuario
+                user
             }            
         });        
+
         if(result.length !== 0){
-            const claveCorrecta = await bcrypt.compare(clave, result.clave);
-            if(!(result && claveCorrecta)){
-                return res.status(401).json({ Error: 'Usuario o Password incorrectos' });
+            const passwordCorrect = await bcrypt.compare(password, result.password);
+            if(!(result && passwordCorrect)){
+                return res.status(401).json({ 
+                    Error: 'user or password are incorrect' 
+                });
             } else {
-                const usuarioToken = {
-                    usuario,
+                const userToken = {
+                    user,
                     id: result.id
                 }                
-                const token = jwt.sign(usuarioToken, process.env.SECRET);                                  
+                const token = jwt.sign(userToken, process.env.SECRET);                                  
                 return res.status(200).json({
-                    token, usuario
+                    token, user
                 });
             }       
         } else {            
-            return res.status(404).json({ Error: 'No existe el usuario' });        
+            return res.status(404).json({ 
+                Error: 'user does not exist' 
+            });        
         }
     }
     catch(error){        
@@ -38,7 +45,6 @@ exports.loginTokenUsuario = async(req,res) => {
     }
 }
 
-// Obtener el token del encabezado
 exports.getToken = req => {
     const authorization = req.get('Authorization');
     if(authorization && authorization.toLowerCase().startsWith('bearer ')){
@@ -47,15 +53,13 @@ exports.getToken = req => {
     return null;
 }
 
-//valida token
-exports.validaToken=async(token)=>{
+exports.validateToken = async(token) => {
     const decodedToken = jwt.verify(token, process.env.SECRET) || null;
     
-    if(!token || !decodedToken.id){
+    if( !token || !decodedToken.id ){
         return false;
-    }
-    
+    }    
     return true;
 };
 
-exports.decodificaSecreto=(token)=> jwt.verify(token, process.env.SECRET) || null;
+exports.decodeSecret = (token) => jwt.verify(token, process.env.SECRET) || null;

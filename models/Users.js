@@ -1,52 +1,52 @@
 const Sequelize = require('sequelize');
 const db = require('../config/db');
 
-const Usuarios = db.define('usuarios', {
+const Users = db.define('users', {
     id:{
         type:Sequelize.INTEGER(11),
         primaryKey:true,
         autoIncrement:true
     },
-    nombre:{
+    name:{
         type:Sequelize.STRING(40),
         allowNull:false,
         validate: {                        
             notEmpty:{
-                msg: 'El Nombre del Usuario no puede estar Vacio.'
+                msg: 'name cannot be empty.'
             },
             isAlpha: {
-                msg: 'El Nombre del Usuario solo puede contener letras.'
+                msg: 'name contains invalid characters (letters only!)'
             },
         }
     },    
-    apellido:{
+    surname:{
         type:Sequelize.STRING(40),
         allowNull:false,
         validate: {                        
             notEmpty:{
-                msg: 'El Apellido del Usuario no puede estar Vacio.'
+                msg: 'last_name cannot be empty.'
             },
             isAlpha: {
-                msg: 'El Apellido del Usuario solo puede contener letras.'
+                msg: 'last_name contains invalid characters (letters only!)'
             },
         }
     },   
-    usuario:{
+    user:{
         type:Sequelize.STRING(40),
         allowNull:false,
         validate: {                        
             notEmpty:{
-                msg: 'El Campo Usuario no puede estar Vacio.'
+                msg: 'user cannot be empty.'
             },
             isAlphanumeric: {
-                msg: 'El Campo Usuario solo puede contener letras y numeros.'
+                msg: 'user contains invalid characters (letters and numbers only!)'
             },
         }
     },  
-    clave:{
+    password:{
         type:Sequelize.STRING(60),
         allowNull:false,
     }
 });
 
-module.exports = Usuarios;
+module.exports = Users;
