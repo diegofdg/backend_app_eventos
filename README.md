@@ -2,11 +2,17 @@
 Proyecto Final del curso "Desarrollo BackEnd con Node JS" dictado por el Cluster Tecnológico Catamarca - CCT
 
 </br>
+
 ## Instrucciones
 
-Para realizar puebas, puedes usar el usuario 'root' y la contraseña 'root'.
+El proyecto se encuentra desplegado en heroku en la siguiente url:
+
+	https://calm-sierra-50957.herokuapp.com
+
+Para realizar pruebas, puedes utilizar el usuario 'root' y la contraseña 'root' o bien crear uno nuevo.
 
 </br>
+
 ### API endpoints
 
 `GET /events`
