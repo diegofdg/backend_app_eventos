@@ -149,23 +149,23 @@ exports.getStarredEvents = async (req, res) => {
 };
 
 exports.createEvent = async (req, res) => {
-    const { title, description, starred, image_url, location } = req.body;    
-
+    
+    const { title, description, starred, image_url, location } = req.body;  
     try {
-        const token = loginController.getToken(req) || null;
+        const token = loginController.getToken(req);        
         const decodedToken = loginController.decodeSecret(token);
     
         if(!loginController.validateToken(token)){
             return res.status(401).json({
                 Error: "token is missing or invalid." 
             });
-        }
+        }        
 
-        const user = await Users.findOne({
+        const user = await Users.findAll({
             where: {
                 id: decodedToken.id
             }
-        });
+        });            
         
         const newEvent = {
             title,
@@ -173,8 +173,9 @@ exports.createEvent = async (req, res) => {
             starred,
             image_url,
             location,
-            userId: user.id
+            userId: user[0].id
         }
+        
         const eventCreated = await Events.create(newEvent);
         if (eventCreated != null) {
             const eventId = eventCreated.id;
@@ -188,7 +189,7 @@ exports.createEvent = async (req, res) => {
                         info 
                     } 
                 } 
-                return res.status(200).send(result);
+                return res.status(201).send(result);
             } else {
                 return res.status(404).json({
                     Error: "registration failed." 

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const Users = require('../models/Users');
 
-exports.crearUsuario = async(req,res) => {
+exports.createUser = async(req,res) => {
     try {
         const { name, surname, user, password } = req.body;
 
@@ -10,20 +10,7 @@ exports.crearUsuario = async(req,res) => {
                 Error: 'name, surname, user and password are required'
             }); 
         }
-
-        let result = await Users.findOne({
-            where: {
-                name,
-                surname 
-            }
-        });
-
-        if(result){
-            return res.status(404).json({
-                Error:'name and last name are already taken'
-            }); 
-        }
-
+        
         result = await Users.findOne({
             where: {
                 user

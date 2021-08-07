@@ -15,7 +15,7 @@ router.get('/starred-events',eventsController.getStarredEvents);
 router.get('/users/events/:page?',eventsController.getUserEvents);
 router.post('/events',eventsController.createEvent);
 
-router.post('/users',usersController.crearUsuario);
+router.post('/users',usersController.createUser);
 
 router.post('/auth',loginController.loginTokenUser);
 

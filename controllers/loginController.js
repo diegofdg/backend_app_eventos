@@ -53,7 +53,7 @@ exports.getToken = req => {
     return null;
 }
 
-exports.validateToken = async(token) => {
+exports.validateToken = async(token) => {    
     const decodedToken = jwt.verify(token, process.env.SECRET) || null;
     
     if( !token || !decodedToken.id ){
