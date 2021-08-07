@@ -5,6 +5,7 @@ const host = process.env.HOST||'0.0.0.0';
 
 const server = http.createServer(app);
 
-server.listen(port,host,(req,res)=>{
-    console.log('Server '+host+' running on port:'+port);
+// eslint-disable-next-line no-unused-vars
+server.listen(port,host,(req,res) => {
+	console.log('Server '+host+' running on port:'+port);
 });
